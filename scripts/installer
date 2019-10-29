@@ -1,0 +1,4 @@
+libdir="/usr/local/etc/td"
+mkdir -p $libdir
+cp td.py $libdir
+cp td /usr/local/bin
