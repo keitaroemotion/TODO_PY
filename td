@@ -22,6 +22,12 @@ if(not os.path.isfile(TODO_FILE_PATH)):
 #       [question]: due date?
 #
 
+def is_bye():
+    return(
+              keyboard.is_pressed('enter')    or \
+              keyboard.is_pressed('ctrl + c') or \
+              keyboard.is_pressed('ctrl + d')
+          )
 def get_key_events(current_date):
     stopwatch = 0
     ceiling_amount = 8000
@@ -29,44 +35,40 @@ def get_key_events(current_date):
     while True: 
         stopwatch += 1
         try: 
-            if keyboard.is_pressed('enter'):
-                    break;
+            if(
+                keyboard.is_pressed('enter')
+            ):
+                break;
             if(stopwatch > ceiling_amount):
+                year  = current_date.year
+                month = current_date.month
+                day   = current_date.day
                 if keyboard.is_pressed('j'):
-                        current_date = date(
-                                           current_date.year,
-                                           current_date.month - 1,
-                                           current_date.day
-                                       )
+                    month -= 1
                 if keyboard.is_pressed('k'):
-                        current_date = date(
-                                           current_date.year,
-                                           current_date.month + 1,
-                                           current_date.day
-                                       )
-                if keyboard.is_pressed('right'):
-                        current_date = date(
-                                           current_date.year + 1,
-                                           current_date.month,
-                                           current_date.day
-                                       )
-                if keyboard.is_pressed('left'):
-                        current_date = date(
-                                           current_date.year - 1,
-                                           current_date.month,
-                                           current_date.day
-                                       )
+                    month += 1
+                if keyboard.is_pressed('u'):
+                    year  += 1
+                if keyboard.is_pressed('f'):
+                    year  -= 1
                 if keyboard.is_pressed('h'):
-                        current_date = current_date - timedelta(days = 1) 
+                    day   -= 1
                 if keyboard.is_pressed('l'):
-                        current_date = current_date + timedelta(days = 1) 
+                    day   += 1
+                current_date = date(year, month, day)
                 print("", end="\r")
                 print(current_date, end="\r")
                 stopwatch = 0
             else:
                 pass
         except:
-            break  
+            if(
+                keyboard.is_pressed('enter')    or \
+                keyboard.is_pressed('ctrl+c') or \
+                keyboard.is_pressed('ctrl+d')
+            ):
+                break;
+            pass
 
 def is_empty(output):
     return (output == None) or (output.strip() == "")
