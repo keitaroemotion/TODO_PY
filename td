@@ -2,6 +2,8 @@
 
 import keyboard
 import os
+import re
+import sys 
 import time
 from datetime import date, timedelta
 from pathlib  import Path
@@ -21,6 +23,46 @@ if(not os.path.isfile(TODO_FILE_PATH)):
 #       [question]: task?
 #       [question]: due date?
 #
+
+def add_todo(content):
+    f = open(TODO_FILE_PATH, "a+") 
+    f.write(content + "\n")
+    f.close()
+    print("[+] TODO added!")
+
+DELIMITER = "$$"
+
+def read_content():
+    f = open(TODO_FILE_PATH, "r") 
+    content = f.read()
+    f.close()
+    return content
+
+def list_todos_for_modification():
+    content = read_content()
+    print("")
+    lines = []
+    i = 0
+    csp = [x for x in content.split("\n") if (DELIMITER in x)]
+    if(len(csp) == 0):
+        abort("No TODOs found ...")
+
+    for line in csp:
+        lines.append(line)
+        task, due_date = line.split(DELIMITER)
+        print("[{}]: [{}] {}".format(i, task, due_date))
+        i += 1
+    print("")
+    return lines 
+
+def list_todos():
+    content = read_content()
+    print("")
+    for line in content.split("\n"):
+        if(DELIMITER in line):
+            task, due_date = line.split(DELIMITER)
+            print("[{}] {}".format(task, due_date))
+    print("")
 
 def is_bye():
     return(
@@ -83,7 +125,47 @@ def ask_for_input(message):
         return ask_for_input(message)
     return output
 
-# task = ask_for_input("[describe your task]: ")
-# print(task)
-today = date.today()
-task = get_key_events(today)
+option = sys.argv[1] if len(sys.argv) > 1 else None
+
+if(option == "-h" or option == "help"):
+    print(
+        ""                            + \
+        "td add   ... add new todo"   + \
+        "td rm    ... rm  todo"       + \
+        "td help  ... show help menu" + \
+        "" 
+    )
+elif(option == "rm" or option == "r"):
+    def remove(index, lines):
+        if not re.search("^\d+$", index):
+            abort("you need to input index.")
+            remove(ask_for_input("which to remove?: "), lines)
+        # 
+        #  overwrite TODO.md and exclude the target line
+        # 
+        i = 0
+        f = open(TODO_FILE_PATH, "w+")
+        for line in lines:
+            if i != int(index):
+                f.write(line + "\n")
+            i += 1
+        f.close()
+
+    lines = list_todos_for_modification()
+    remove(ask_for_input("which to remove? : "), lines)
+
+
+elif(option == "add") or (option == "a"):
+    task = ask_for_input("[describe your task]: ")
+    today = date.today()
+    print("[due date?]")
+    print("")
+    print("h ... day   - 1  |  l ... day   + 1")
+    print("j ... month - 1  |  k ... month + 1")
+    print("f ... year  - 1  |  u ... year  + 1")
+    print("")
+    due_date = get_key_events(today)
+    add_todo("{}{}{}".format(task, DELIMITER, due_date))
+    list_todos()
+else:
+    list_todos()
