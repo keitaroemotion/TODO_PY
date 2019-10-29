@@ -122,6 +122,7 @@ def get_key_events(current_date):
             ):
                 break;
             pass
+    return current_date
 
 def is_empty(output):
     return (output == None) or (output.strip() == "")
@@ -136,6 +137,39 @@ def ask_for_input(message):
         return ask_for_input(message)
     return output
 
+def remove(index, lines):
+    if not re.search("^\d+$", index):
+        abort("you need to input index.")
+        remove(ask_for_input("which to remove?: "), lines)
+    # 
+    #  overwrite TODO.md and exclude the target line
+    # 
+    i = 0
+    f = open(TODO_FILE_PATH, "w+")
+    for line in lines:
+        if i != int(index):
+            f.write(line + "\n")
+        i += 1
+    f.close()
+
+def update(index, lines):
+    if not re.search("^\d+$", index):
+        abort("you need to input index.")
+        update(ask_for_input("which to update?: "), lines)
+    # 
+    #  overwrite TODO.md and exclude the target line
+    # 
+    i = 0
+    f = open(TODO_FILE_PATH, "w+")
+    for line in lines:
+        if i == int(index):
+            # XXX
+            task, due_date = add_task()
+            line = "{}{}{}".format(task, DELIMITER, due_date)
+        f.write(line + "\n")
+        i += 1
+    f.close()
+
 option = sys.argv[1] if len(sys.argv) > 1 else None
 
 if(option == "-h" or option == "help"):
@@ -147,42 +181,10 @@ if(option == "-h" or option == "help"):
         "" 
     )
 elif(option == "update" or option == "u"):
-    def update(index, lines):
-        if not re.search("^\d+$", index):
-            abort("you need to input index.")
-            update(ask_for_input("which to update?: "), lines)
-        # 
-        #  overwrite TODO.md and exclude the target line
-        # 
-        i = 0
-        f = open(TODO_FILE_PATH, "w+")
-        for line in lines:
-            if i == int(index):
-                # XXX
-                task, due_date = add_task()
-                line = "{}{}{}".format(task, DELIMITER, due_date)
-            f.write(line + "\n")
-            i += 1
-        f.close()
     lines = list_todos_for_modification()
     update(ask_for_input("which to update? : "), lines)
 
 elif(option == "rm" or option == "r"):
-    def remove(index, lines):
-        if not re.search("^\d+$", index):
-            abort("you need to input index.")
-            remove(ask_for_input("which to remove?: "), lines)
-        # 
-        #  overwrite TODO.md and exclude the target line
-        # 
-        i = 0
-        f = open(TODO_FILE_PATH, "w+")
-        for line in lines:
-            if i != int(index):
-                f.write(line + "\n")
-            i += 1
-        f.close()
-
     lines = list_todos_for_modification()
     remove(ask_for_input("which to remove? : "), lines)
 
