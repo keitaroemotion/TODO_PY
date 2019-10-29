@@ -23,6 +23,17 @@ if(not os.path.isfile(TODO_FILE_PATH)):
 #       [question]: task?
 #       [question]: due date?
 #
+def add_task():
+    task  = ask_for_input("[describe your task]: ")
+    today = date.today()
+    print("[due date?]")
+    print("")
+    print("h ... day   - 1  |  l ... day   + 1")
+    print("j ... month - 1  |  k ... month + 1")
+    print("f ... year  - 1  |  u ... year  + 1")
+    print("")
+    due_date = get_key_events(today)
+    return [task, due_date]
 
 def add_todo(content):
     f = open(TODO_FILE_PATH, "a+") 
@@ -135,6 +146,27 @@ if(option == "-h" or option == "help"):
         "td help  ... show help menu" + \
         "" 
     )
+elif(option == "update" or option == "u"):
+    def update(index, lines):
+        if not re.search("^\d+$", index):
+            abort("you need to input index.")
+            update(ask_for_input("which to update?: "), lines)
+        # 
+        #  overwrite TODO.md and exclude the target line
+        # 
+        i = 0
+        f = open(TODO_FILE_PATH, "w+")
+        for line in lines:
+            if i == int(index):
+                # XXX
+                task, due_date = add_task()
+                line = "{}{}{}".format(task, DELIMITER, due_date)
+            f.write(line + "\n")
+            i += 1
+        f.close()
+    lines = list_todos_for_modification()
+    update(ask_for_input("which to update? : "), lines)
+
 elif(option == "rm" or option == "r"):
     def remove(index, lines):
         if not re.search("^\d+$", index):
@@ -154,17 +186,8 @@ elif(option == "rm" or option == "r"):
     lines = list_todos_for_modification()
     remove(ask_for_input("which to remove? : "), lines)
 
-
 elif(option == "add") or (option == "a"):
-    task = ask_for_input("[describe your task]: ")
-    today = date.today()
-    print("[due date?]")
-    print("")
-    print("h ... day   - 1  |  l ... day   + 1")
-    print("j ... month - 1  |  k ... month + 1")
-    print("f ... year  - 1  |  u ... year  + 1")
-    print("")
-    due_date = get_key_events(today)
+    task, due_date = add_task()
     add_todo("{}{}{}".format(task, DELIMITER, due_date))
     list_todos()
 else:
